@@ -76,4 +76,17 @@ public class WorkoutDTO {
     public void setNotes(String notes) {
         this.notes = notes;
     }
+
+    @Override
+    public String toString() {
+        return "WorkoutDTO{" +
+                "workoutID=" + workoutID +
+                ", userID=" + userID +
+                ", workoutType='" + workoutType + '\'' +
+                ", duration=" + duration +
+                ", caloriesBurned=" + caloriesBurned +
+                ", workoutDate=" + workoutDate +
+                ", notes='" + notes + '\'' +
+                '}';
+    }
 }

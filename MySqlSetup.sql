@@ -1,31 +1,18 @@
 -- Create Database
-CREATE
-DATABASE IF NOT EXISTS FitnessTrackerDB;
-USE
-FitnessTrackerDB;
+CREATE DATABASE IF NOT EXISTS FitnessTrackerDB;
+USE FitnessTrackerDB;
 
 -- Create Workout Table
 CREATE TABLE IF NOT EXISTS Workout
 (
-    workoutID
-    INT
-    AUTO_INCREMENT
-    PRIMARY
-    KEY,
-    userID
-    INT
-    NOT
-    NULL,
-    workoutType
-    VARCHAR
-(
-    50
-) NOT NULL,
-    duration INT NOT NULL, -- Duration in minutes
-    caloriesBurned INT NOT NULL,
-    workoutDate DATE NOT NULL,
-    notes TEXT DEFAULT NULL
-    );
+    workoutID INT AUTO_INCREMENT PRIMARY KEY,
+    userID INT NOT NULL,
+    workoutType VARCHAR(50) NOT NULL,
+    duration    INT         NOT NULL, -- Duration in minutes
+    caloriesBurned INT         NOT NULL,
+    workoutDate    DATE        NOT NULL,
+    notes          TEXT DEFAULT NULL
+);
 
 -- Insert Sample Data
 INSERT INTO Workout (userID, workoutType, duration, caloriesBurned, workoutDate, notes)

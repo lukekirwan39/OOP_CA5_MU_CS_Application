@@ -17,7 +17,19 @@ public class WorkoutDAO implements WorkoutDAOInterface {
 
     @Override
     public void insertWorkout(WorkoutDTO workout) {
-
+        try {
+            String query = "INSERT INTO Workout (userID, workoutType, duration, caloriesBurned, workoutDate, notes) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, workout.getWorkoutID());
+            stmt.setString(2, workout.getWorkoutType());
+            stmt.setInt(3, workout.getDuration());
+            stmt.setInt(4, workout.getCaloriesBurned());
+            stmt.setDate(5, new java.sql.Date(workout.getWorkoutDate().getTime()));
+            stmt.setString(6, workout.getNotes());
+            stmt.executeUpdate();
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override

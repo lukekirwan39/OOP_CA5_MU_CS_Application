@@ -21,7 +21,25 @@ public class WorkoutDAO implements WorkoutDAOInterface {
     }
 
     @Override
-    public WorkoutDTO getWorkoutById(int workoutID) throws SQLException {
+    public WorkoutDTO getWorkoutById(int workoutID) {
+        try {
+            String query = "SELECT * FROM Workout WHERE workoutID = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, workoutID);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()){
+                return new WorkoutDTO(
+                        rs.getInt("workoutID"),
+                        rs.getInt("userID"),
+                        rs.getString("workoutType"),
+                        rs.getInt("duration"),
+                        rs.getInt("caloriesBurned"),
+                        rs.getDate("workoutDate"),
+                        rs.getString("notes"));
+            }
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
         return null;
     }
 

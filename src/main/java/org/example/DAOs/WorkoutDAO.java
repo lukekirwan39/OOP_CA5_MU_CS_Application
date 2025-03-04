@@ -16,7 +16,7 @@ public class WorkoutDAO implements WorkoutDAOInterface {
     }
 
     @Override
-    public void insertWorkout(WorkoutDTO workout) throws SQLException {
+    public void insertWorkout(WorkoutDTO workout) {
 
     }
 
@@ -67,12 +67,19 @@ public class WorkoutDAO implements WorkoutDAOInterface {
     }
 
     @Override
-    public void updateWorkout(WorkoutDTO workout) throws SQLException {
+    public void updateWorkout(WorkoutDTO workout) {
 
     }
 
     @Override
-    public void deleteWorkout(int workoutID) throws SQLException {
-
+    public void deleteWorkout(int workoutID) {
+        String query = "DELETE FROM Workout WHERE workoutID = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, workoutID);
+            stmt.executeUpdate();
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 }

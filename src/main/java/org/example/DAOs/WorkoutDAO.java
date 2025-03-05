@@ -81,6 +81,25 @@ public class WorkoutDAO implements WorkoutDAOInterface {
     @Override
     public void updateWorkout(WorkoutDTO workout) {
 
+        String query = "UPDATE Workout SET userID = ?, workoutType = ?, duration = ?, caloriesBurned = ?, workoutDate = ?, notes = ? WHERE workoutID = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, workout.getUserID());
+            stmt.setString(2, workout.getWorkoutType());
+            stmt.setInt(3, workout.getDuration());
+            stmt.setInt(4, workout.getCaloriesBurned());
+            stmt.setDate(5, (Date) workout.getWorkoutDate());
+            stmt.setString(6, workout.getNotes());
+            stmt.setInt(7, workout.getWorkoutID());
+
+            stmt.executeUpdate();
+        }
+        catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+
+
     }
 
     @Override

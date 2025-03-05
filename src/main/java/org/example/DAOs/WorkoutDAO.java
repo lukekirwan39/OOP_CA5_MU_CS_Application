@@ -113,7 +113,7 @@ public class WorkoutDAO implements WorkoutDAOInterface {
 
     //Filter Workout by Duration Using Comparator
     @Override
-    public List<WorkoutDTO> filterWorkoutsByDuration(@org.jetbrains.annotations.NotNull List<WorkoutDTO> allWorkouts, int duration) {
+    public List<WorkoutDTO> filterWorkoutsByDuration(List<WorkoutDTO> allWorkouts, int duration) {
         List<WorkoutDTO> filteredWorkouts = new ArrayList<>();
 
         for (WorkoutDTO workout : allWorkouts) {

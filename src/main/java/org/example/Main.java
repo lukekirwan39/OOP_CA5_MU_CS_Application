@@ -30,9 +30,9 @@ public class Main {
 
             wDAOInterface.deleteWorkout(10);
 
-            System.out.println();
+            System.out.println("Add a Workout");
 
-            System.out.println("Enter your User ID: ");
+            System.out.println("Enter your Workout ID: ");
             int id = scanner.nextInt();
             System.out.print("Enter Workout Type: ");
             String type = scanner.next();
@@ -45,6 +45,13 @@ public class Main {
             System.out.print("Enter Notes: ");
             String notes = scanner.next();
             wDAOInterface.insertWorkout(new WorkoutDTO(0, id, type, duration, caloriesBurned, java.sql.Date.valueOf(workoutDate), notes));
+
+            System.out.println("Please insert a duration(hours) to filter by: ");
+            int durationFilter = scanner.nextInt();
+            List<WorkoutDTO> filteredWorkoutsByDuration = wDAOInterface.filterWorkoutsByDuration(workouts, durationFilter);
+            for (WorkoutDTO w: filteredWorkoutsByDuration){
+                System.out.println(w);
+            }
 
         } catch (SQLException e){
             throw new RuntimeException(e);

@@ -11,4 +11,5 @@ public interface WorkoutDAOInterface {
     List<WorkoutDTO> getAllWorkouts() throws SQLException;
     void updateWorkout(WorkoutDTO workout) throws SQLException;
     void deleteWorkout(int workoutID) throws SQLException;
+    List<WorkoutDTO> filterWorkoutsByDuration(List<WorkoutDTO> allWorkouts, int duration) throws SQLException;
 }

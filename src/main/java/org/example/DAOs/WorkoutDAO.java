@@ -97,9 +97,6 @@ public class WorkoutDAO implements WorkoutDAOInterface {
         catch (SQLException e){
             System.out.println(e.getMessage());
         }
-
-
-
     }
 
     @Override
@@ -113,4 +110,24 @@ public class WorkoutDAO implements WorkoutDAOInterface {
             System.out.println(e.getMessage());
         }
     }
+
+    //Filter Workout by Duration Using Comparator
+    @Override
+    public List<WorkoutDTO> filterWorkoutsByDuration(@org.jetbrains.annotations.NotNull List<WorkoutDTO> allWorkouts, int duration) {
+        List<WorkoutDTO> filteredWorkouts = new ArrayList<>();
+
+        for (WorkoutDTO workout : allWorkouts) {
+            if (compareWorkoutsByDuration(workout.getDuration(), duration) == 0) {
+                filteredWorkouts.add(workout);
+            }
+        }
+        return filteredWorkouts;
+    }
+
+    // Comparator method for Duration
+    private int compareWorkoutsByDuration(int duration1, int duration2) {
+        return Integer.compare(duration1, duration2);
+    }
+
 }
+

@@ -18,6 +18,17 @@ public class WorkoutDAO implements WorkoutDAOInterface {
     @Override
     public void insertWorkout(WorkoutDTO workout) {
         try {
+            String checkQuery = "SELECT COUNT(*) FROM Workout WHERE workoutID = ? AND userID = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+            checkStmt.setInt(1, workout.getWorkoutID());
+            checkStmt.setInt(2, workout.getUserID());  // Ensure userID is correctly set in WorkoutDTO
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next() && rs.getInt(1) > 0) {
+                System.out.println("Workout with this ID and User ID already exists, please try again.");
+                return;
+            }
+
             String query = "INSERT INTO Workout (userID, workoutType, duration, caloriesBurned, workoutDate, notes) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, workout.getWorkoutID());
@@ -27,6 +38,9 @@ public class WorkoutDAO implements WorkoutDAOInterface {
             stmt.setDate(5, new java.sql.Date(workout.getWorkoutDate().getTime()));
             stmt.setString(6, workout.getNotes());
             stmt.executeUpdate();
+
+            System.out.println("Workout added successfully.");
+
         } catch (SQLException e){
             System.out.println(e.getMessage());
         }
@@ -116,10 +130,14 @@ public class WorkoutDAO implements WorkoutDAOInterface {
     public List<WorkoutDTO> filterWorkoutsByDuration(List<WorkoutDTO> allWorkouts, int duration) {
         List<WorkoutDTO> filteredWorkouts = new ArrayList<>();
 
-        for (WorkoutDTO workout : allWorkouts) {
-            if (compareWorkoutsByDuration(workout.getDuration(), duration) == 0) {
-                filteredWorkouts.add(workout);
+        try {
+            for (WorkoutDTO workout : allWorkouts) {
+                if (compareWorkoutsByDuration(workout.getDuration(), duration) == 0) {
+                    filteredWorkouts.add(workout);
+                }
             }
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
         return filteredWorkouts;
     }

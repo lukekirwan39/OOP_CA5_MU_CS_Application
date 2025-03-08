@@ -88,7 +88,7 @@ public class Main {
                             // Add a workout
                             System.out.println("\nAdd a Workout");
 
-                            System.out.println("Enter your Workout ID: ");
+                            System.out.println("Enter your User ID: ");
                             if (!scanner.hasNextInt()) {
                                 System.out.println("Invalid input! Workout ID must be a number.");
                                 scanner.next();

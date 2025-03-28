@@ -23,7 +23,8 @@ public class Main {
                     System.out.println("4. Add a workout");
                     System.out.println("5. Update an existing workout");
                     System.out.println("6. Filter workouts by duration");
-                    System.out.println("7. Exit");
+                    System.out.println("7. Convert to JSON");
+                    System.out.println("8. Exit");
                     System.out.print("Enter your choice: ");
 
                     if (!scanner.hasNextInt()) {
@@ -198,6 +199,12 @@ public class Main {
                             }
                             break;
                         case 7:
+                            List<WorkoutDTO> jsonWorkouts = wDAOInterface.getAllWorkouts();
+                            String jsonString = JsonConverter.workoutListToJsonString(jsonWorkouts);
+                            System.out.println("Workouts in JSON format:");
+                            System.out.println(jsonString);
+                            break;
+                        case 8:
                             System.out.println("Exiting program...");
                             System.exit(0);
                             break;

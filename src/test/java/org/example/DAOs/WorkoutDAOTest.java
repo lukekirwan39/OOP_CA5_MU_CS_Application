@@ -133,7 +133,7 @@ class WorkoutDAOTest {
     void convertEntityToJson() {
         WorkoutDTO workout = new WorkoutDTO(1, 1, "Running", 30, 200,
                 java.sql.Date.valueOf("2025-01-01"), "Test");
-        String json = JsonConverter.convertEntityToJson(workout);
+        String json = JsonConverter.workoutToJsonString(workout);
         assertNotNull(json);
         assertTrue(json.contains("Running"));
         assertTrue(json.contains("2025-01-01"));
@@ -142,7 +142,7 @@ class WorkoutDAOTest {
     void convertListToJson() {
         List<WorkoutDTO> workouts = List.of( new WorkoutDTO(21,21,"Running",30,200,java.sql.Date.valueOf("2025-03-02"),null),
                 new WorkoutDTO(22,22,"Cycling",45,300,java.sql.Date.valueOf("2025-03-02"),null));
-        String json = JsonConverter.convertListToJson(workouts);
+        String json = JsonConverter.workoutListToJsonString(workouts);
         assertNotNull(json);
         assertTrue(json.contains("Cycling"));
         assertTrue(json.contains("Running"));

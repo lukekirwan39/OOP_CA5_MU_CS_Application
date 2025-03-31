@@ -1,8 +1,8 @@
-package org.example.DAOs;
+package org.example.server.DAOs;
 
-import org.example.DBConnection;
-import org.example.DTOs.WorkoutDTO;
-import org.example.Interfaces.WorkoutDAOInterface;
+import org.example.server.db.DBConnection;
+import org.example.client.DTOs.WorkoutDTO;
+import org.example.server.DAOs.Interfaces.WorkoutDAOInterface;
 
 import java.sql.*;
 import java.util.ArrayList;

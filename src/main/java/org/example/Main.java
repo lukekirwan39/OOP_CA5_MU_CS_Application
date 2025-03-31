@@ -1,9 +1,9 @@
 package org.example;
 
-import org.example.DAOs.WorkoutDAO;
-import org.example.DTOs.WorkoutDTO;
-import org.example.Interfaces.WorkoutDAOInterface;
-import org.example.Json.JsonConverter;
+import org.example.server.DAOs.WorkoutDAO;
+import org.example.client.DTOs.WorkoutDTO;
+import org.example.server.DAOs.Interfaces.WorkoutDAOInterface;
+import org.example.client.Json.JsonConverter;
 
 import java.sql.SQLException;
 import java.util.InputMismatchException;

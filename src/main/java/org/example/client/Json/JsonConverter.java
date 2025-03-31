@@ -1,10 +1,9 @@
-package org.example.Json;
+package org.example.client.Json;
 
-import org.example.DTOs.WorkoutDTO;
+import org.example.client.DTOs.WorkoutDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class JsonConverter

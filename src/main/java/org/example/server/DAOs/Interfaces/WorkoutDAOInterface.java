@@ -1,6 +1,6 @@
-package org.example.Interfaces;
+package org.example.server.DAOs.Interfaces;
 
-import org.example.DTOs.WorkoutDTO;
+import org.example.client.DTOs.WorkoutDTO;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -1,6 +1,5 @@
-package org.example.Interfaces;
+package org.example.server.DAOs.Interfaces;
 
-import org.example.Json.JsonConverter;
 import java.util.List;
 
 public interface ConverterInterface

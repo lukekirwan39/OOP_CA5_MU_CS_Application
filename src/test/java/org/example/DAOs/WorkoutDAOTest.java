@@ -1,7 +1,8 @@
 package org.example.DAOs;
 
-import org.example.DTOs.WorkoutDTO;
-import org.example.Json.JsonConverter;
+import org.example.client.DTOs.WorkoutDTO;
+import org.example.client.Json.JsonConverter;
+import org.example.server.DAOs.WorkoutDAO;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;

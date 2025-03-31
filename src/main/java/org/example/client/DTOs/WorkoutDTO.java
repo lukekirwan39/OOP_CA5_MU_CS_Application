@@ -1,4 +1,4 @@
-package org.example.DTOs;
+package org.example.client.DTOs;
 
 import java.util.Date;
 

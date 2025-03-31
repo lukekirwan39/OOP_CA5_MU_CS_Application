@@ -16,62 +16,49 @@ public class WorkoutDAO implements WorkoutDAOInterface {
     }
 
     @Override
-    public void insertWorkout(WorkoutDTO workout) {
-        // Check if workout object is null
+
+    public String insertWorkout(WorkoutDTO workout) {
         if (workout == null) {
-            System.out.println("Workout object is null, please try again.");
-            return;
+            return "Workout object is null, please try again.";
         }
 
-        // Validate workout data
-        if (workout.getUserID() <= 0){
-            System.out.println("Workout ID and User ID must be greater than 0, please try again.");
-            return;
-        }
-        if (workout.getDuration() <= 0){
-            System.out.println("Duration must be greater than 0, please try again.");
-            return;
-        }
-        if (workout.getCaloriesBurned() < 0) {
-            System.out.println("Error: Calories burned cannot be negative.");
-            return;
-        }
-        if (workout.getWorkoutDate() == null) {
-            System.out.println("Error: Workout date cannot be null.");
-            return;
+        if (workout.getUserID() <= 0 || workout.getDuration() <= 0 || workout.getCaloriesBurned() < 0 || workout.getWorkoutDate() == null) {
+            return "Invalid workout details provided.";
         }
 
-        String checkQuery = "SELECT COUNT(*) FROM Workout WHERE workoutID = ? AND userID = ?";
-        String query = "INSERT INTO Workout (userID, workoutType, duration, caloriesBurned, workoutDate, notes) VALUES (?, ?, ?, ?, ?, ?)";
+        String checkQuery = "SELECT COUNT(*) FROM Workout WHERE userID = ? AND workoutDate = ?";
+        String insertQuery = "INSERT INTO Workout (userID, workoutType, duration, caloriesBurned, workoutDate, notes) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-             PreparedStatement insertStmt = conn.prepareStatement(query)
-        ){
-            checkStmt.setInt(1, workout.getWorkoutID());
-            checkStmt.setInt(2, workout.getUserID());  // Ensure userID is correctly set in WorkoutDTO
+        try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
+            checkStmt.setInt(1, workout.getUserID());
+            checkStmt.setDate(2, new java.sql.Date(workout.getWorkoutDate().getTime()));
+
             try (ResultSet rs = checkStmt.executeQuery()) {
                 if (rs.next() && rs.getInt(1) > 0) {
-                    System.out.println("Workout with this ID and User ID already exists, please try again.");
-                    return;
+                    return "Workout already exists for this user on this date.";
                 }
             }
+        } catch (SQLException e) {
+            return "Database error: " + e.getMessage();
+        }
 
+        try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
             insertStmt.setInt(1, workout.getUserID());
             insertStmt.setString(2, workout.getWorkoutType());
             insertStmt.setInt(3, workout.getDuration());
             insertStmt.setInt(4, workout.getCaloriesBurned());
             insertStmt.setDate(5, new java.sql.Date(workout.getWorkoutDate().getTime()));
             insertStmt.setString(6, workout.getNotes());
+
             int rowsInserted = insertStmt.executeUpdate();
 
             if (rowsInserted > 0) {
-                System.out.println("Workout added successfully.");
+                return "Workout added successfully.";
             } else {
-                System.out.println("Error: Workout not added.");
+                return "Error: Workout not added.";
             }
-
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            return "Database error: " + e.getMessage();
         }
     }
 
@@ -200,8 +187,7 @@ public class WorkoutDAO implements WorkoutDAOInterface {
 
     @Override
     public void deleteWorkout(int workoutID) {
-        // Check if workoutID is valid
-        if (workoutID <= 0){
+        if (workoutID <= 0) {
             System.out.println("Workout ID must be greater than 0, please try again.");
             return;
         }
@@ -209,27 +195,26 @@ public class WorkoutDAO implements WorkoutDAOInterface {
         String checkQuery = "SELECT COUNT(*) FROM Workout WHERE workoutID = ?";
         String deleteQuery = "DELETE FROM Workout WHERE workoutID = ?";
 
-        try(PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery);
-            PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
-
-            // check if workout exists before deleting
+        try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
             checkStmt.setInt(1, workoutID);
             try (ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next() || rs.getInt(1) == 0) {
+                if (rs.next() && rs.getInt(1) == 0) {
                     System.out.println("Workout does not exist, please try again.");
                     return;
                 }
-
             }
-            deleteStmt.setInt(1, workoutID);
-            int rowsDeleted = deleteStmt.executeUpdate();
 
-            if (rowsDeleted > 0) {
-                System.out.println("Workout deleted successfully.");
-            } else {
-                System.out.println("Error: Workout deletion failed.");
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery)) {
+                deleteStmt.setInt(1, workoutID);
+                int rowsDeleted = deleteStmt.executeUpdate();
+
+                if (rowsDeleted > 0) {
+                    System.out.println("Workout deleted successfully.");
+                } else {
+                    System.out.println("Error: Workout deletion failed.");
+                }
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }

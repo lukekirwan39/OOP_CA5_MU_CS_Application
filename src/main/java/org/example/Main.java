@@ -3,6 +3,7 @@ package org.example;
 import org.example.DAOs.WorkoutDAO;
 import org.example.DTOs.WorkoutDTO;
 import org.example.Interfaces.WorkoutDAOInterface;
+import org.example.Json.JsonConverter;
 
 import java.sql.SQLException;
 import java.util.InputMismatchException;
@@ -24,7 +25,8 @@ public class Main {
                     System.out.println("5. Update an existing workout");
                     System.out.println("6. Filter workouts by duration");
                     System.out.println("7. Convert to JSON");
-                    System.out.println("8. Exit");
+                    System.out.println("8. Convert to single workout to a JSON by ID");
+                    System.out.println("9. Exit");
                     System.out.print("Enter your choice: ");
 
                     if (!scanner.hasNextInt()) {
@@ -205,6 +207,19 @@ public class Main {
                             System.out.println(jsonString);
                             break;
                         case 8:
+                            System.out.println("Enter the ID of the player to convert to JSON:");
+                            workoutId = scanner.nextInt();
+                            scanner.nextLine(); // Consume newline
+
+                            workout = wDAOInterface.getWorkoutById(workoutId);
+                            if (workout != null) {
+                                jsonString = JsonConverter.workoutToJsonString(workout);
+                                System.out.println("Player JSON:\n" + jsonString);
+                            } else {
+                                System.out.println("Player not found with ID: " + workoutId);
+                            }
+                            break;
+                        case 9:
                             System.out.println("Exiting program...");
                             System.exit(0);
                             break;

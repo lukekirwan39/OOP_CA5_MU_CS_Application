@@ -1,4 +1,4 @@
-package org.example.server.db;
+package org.example.server.util;
 
 
 import java.sql.Connection;

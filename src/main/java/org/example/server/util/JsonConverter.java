@@ -1,6 +1,6 @@
-package org.example.client.Json;
+package org.example.server.util;
 
-import org.example.client.DTOs.WorkoutDTO;
+import org.example.shared.DTOs.WorkoutDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

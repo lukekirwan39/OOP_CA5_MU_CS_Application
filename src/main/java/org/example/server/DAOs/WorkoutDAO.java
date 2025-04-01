@@ -1,8 +1,9 @@
 package org.example.server.DAOs;
 
-import org.example.server.db.DBConnection;
-import org.example.client.DTOs.WorkoutDTO;
+import org.example.server.util.DBConnection;
+
 import org.example.server.DAOs.Interfaces.WorkoutDAOInterface;
+import org.example.shared.DTOs.WorkoutDTO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ public class WorkoutDAO implements WorkoutDAOInterface {
     }
 
     @Override
-
     public String insertWorkout(WorkoutDTO workout) {
         if (workout == null) {
             return "Workout object is null, please try again.";

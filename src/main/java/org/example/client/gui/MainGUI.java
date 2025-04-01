@@ -5,19 +5,29 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.example.server.DAOs.WorkoutDAO;
-import org.example.server.DAOs.Interfaces.WorkoutDAOInterface;
+import org.example.client.socket.SocketClient;
 import org.example.client.DTOs.WorkoutDTO;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.IOException;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class MainGUI extends Application {
 
-    private WorkoutDAOInterface workoutDAO = new WorkoutDAO();
+    private SocketClient connection;
     private TextArea outputArea = new TextArea();
 
     public MainGUI() throws SQLException {
+        try {
+            connection = new SocketClient("localhost", 12345);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -48,18 +58,39 @@ public class MainGUI extends Application {
 
     private void listAllWorkouts() {
         try {
-            List<WorkoutDTO> workouts = workoutDAO.getAllWorkouts();
-            if (workouts.isEmpty()) {
+            String requestJson = "{\"action\":\"getAllWorkouts\"}";
+            String response = connection.sendMessage(requestJson);
+
+            JSONArray workoutsArray = new JSONArray(response);
+            if (workoutsArray.length() == 0) {
                 outputArea.setText("No workouts found.");
             } else {
                 StringBuilder sb = new StringBuilder("All Workouts:\n");
-                for (WorkoutDTO w : workouts) {
-                    sb.append(w).append("\n");
+                for (int i = 0; i < workoutsArray.length(); i++) {
+                    JSONObject obj = workoutsArray.getJSONObject(i);
+
+                    // Parse the workoutDate from String to java.sql.Date
+                    String dateStr = obj.getString("workoutDate");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    LocalDate localDate = LocalDate.parse(dateStr, formatter);
+                    Date sqlDate = Date.valueOf(localDate);
+
+                    WorkoutDTO workout = new WorkoutDTO(
+                            obj.getInt("workoutID"),
+                            obj.getInt("userID"),
+                            obj.getString("workoutType"),
+                            obj.getInt("duration"),
+                            obj.getInt("caloriesBurned"),
+                            sqlDate,
+                            obj.getString("notes")
+                    );
+                    sb.append(workout).append("\n");
                 }
                 outputArea.setText(sb.toString());
             }
-        } catch (Exception ex) {
-            outputArea.setText("Error: " + ex.getMessage());
+        } catch (Exception e) {
+            outputArea.setText("Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -72,15 +103,47 @@ public class MainGUI extends Application {
         dialog.showAndWait().ifPresent(id -> {
             try {
                 int workoutId = Integer.parseInt(id);
-                WorkoutDTO workout = workoutDAO.getWorkoutById(workoutId);
-                outputArea.setText(workout != null ? workout.toString() : "Workout not found.");
-            } catch (NumberFormatException | SQLException e) {
+
+                // Build JSON request
+                JSONObject request = new JSONObject();
+                request.put("action", "getWorkoutById");
+                request.put("id", workoutId);
+
+                // Send request
+                String response = connection.sendMessage(request.toString());
+
+                // Parse response
+                JSONObject responseJson = new JSONObject(response);
+
+                String dateStr = responseJson.getString("workoutDate");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate localDate = LocalDate.parse(dateStr, formatter);
+                Date sqlDate = Date.valueOf(localDate);
+
+                if (responseJson.has("error")) {
+                    outputArea.setText("Server Error: " + responseJson.getString("error"));
+                } else {
+                    WorkoutDTO workout = new WorkoutDTO(
+                            responseJson.getInt("workoutID"),
+                            responseJson.getInt("userID"),
+                            responseJson.getString("workoutType"),
+                            responseJson.getInt("duration"),
+                            responseJson.getInt("caloriesBurned"),
+                            sqlDate,
+                            responseJson.getString("notes")
+                    );
+                    outputArea.setText(workout.toString());
+                }
+
+            } catch (NumberFormatException e) {
                 outputArea.setText("Invalid ID format.");
+            } catch (IOException e) {
+                outputArea.setText("Connection error: " + e.getMessage());
             }
         });
     }
 
     public static void main(String[] args) {
-        launch(args); // launches the JavaFX app
+        launch(args);
     }
 }

@@ -109,12 +109,12 @@ class WorkoutDAOTest {
     void deleteWorkout() throws SQLException {
         WorkoutDAO workoutDAO = new WorkoutDAO();
 
-        WorkoutDTO existingWorkout = workoutDAO.getWorkoutById(18);
+        WorkoutDTO existingWorkout = workoutDAO.getWorkoutById(17);
         assertNotNull(existingWorkout, "Workout should exist before deletion");
 
-        workoutDAO.deleteWorkout(18);
+        workoutDAO.deleteWorkout(17);
 
-        WorkoutDTO deletedWorkout = workoutDAO.getWorkoutById(18);
+        WorkoutDTO deletedWorkout = workoutDAO.getWorkoutById(17);
         assertNull(deletedWorkout, "Workout should be deleted");
 
 

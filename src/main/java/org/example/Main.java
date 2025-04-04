@@ -18,7 +18,8 @@ public class Main {
 
             while (true) {
                 try {
-                    System.out.println("\n1. List all workouts");
+                    System.out.println("\n--- Fitness Tacker ---");
+                    System.out.println("1. List all workouts");
                     System.out.println("2. Find and Display by workout ID");
                     System.out.println("3. Delete a workout");
                     System.out.println("4. Add a workout");

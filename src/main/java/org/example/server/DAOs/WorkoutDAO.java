@@ -126,13 +126,11 @@ public class WorkoutDAO implements WorkoutDAOInterface {
 
     @Override
     public void updateWorkout(WorkoutDTO workout) {
-        // Check if workout object is null
         if (workout == null) {
             System.out.println("Workout object is null, please try again.");
             return;
         }
 
-        // Validate workout data
         if (workout.getWorkoutID() <= 0 || workout.getUserID() <= 0){
             System.out.println("Workout ID and User ID must be greater than 0, please try again.");
             return;
@@ -176,7 +174,8 @@ public class WorkoutDAO implements WorkoutDAOInterface {
             int rowsUpdated = updateStmt.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Workout updated successfully.");
-            } else {
+            }
+            else {
                 System.out.println("Error: Workout update failed. No changes were made.");
             }
         }

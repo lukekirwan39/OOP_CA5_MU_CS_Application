@@ -61,9 +61,9 @@ public class MainGUI extends Application {
         Button deleteWorkoutButton = new Button("Delete Workout");
         Button filterByDurationButton = new Button("Filter by Duration");
 
+        addWorkoutButton.setOnAction(e -> addNewWorkout());
         listAllButton.setMaxWidth(Double.MAX_VALUE);
         findByIdButton.setMaxWidth(Double.MAX_VALUE);
-        addWorkoutButton.setMaxWidth(Double.MAX_VALUE);
         updateWorkoutButton.setMaxWidth(Double.MAX_VALUE);
         deleteWorkoutButton.setMaxWidth(Double.MAX_VALUE);
         filterByDurationButton.setMaxWidth(Double.MAX_VALUE);
@@ -74,6 +74,7 @@ public class MainGUI extends Application {
         deleteWorkoutButton.setOnAction(e -> deleteWorkout());
         filterByDurationButton.setOnAction(e -> filterByDuration());
 
+        root.getChildren().addAll(
         buttonGroup.getChildren().addAll(
                 actionsLabel,
                 listAllButton,
@@ -107,6 +108,165 @@ public class MainGUI extends Application {
         primaryStage.show();
     }
 
+    private void addNewWorkout() {
+
+
+        Dialog<WorkoutDTO> dialog = new Dialog<>();
+        dialog.setTitle("Add New Workout");
+        dialog.setHeaderText("Enter Workout Details");
+
+        ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField userIdField = new TextField();
+        TextField typeField = new TextField();
+        TextField durationField = new TextField();
+        TextField caloriesField = new TextField();
+        DatePicker datePicker = new DatePicker();
+        TextArea notesArea = new TextArea();
+
+        durationField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                durationField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+
+        caloriesField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                caloriesField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+
+        grid.add(new Label("User ID:"), 0, 0);
+        grid.add(userIdField, 1, 0);
+        grid.add(new Label("Workout Type:"), 0, 1);
+        grid.add(typeField, 1, 1);
+        grid.add(new Label("Duration (minutes):"), 0, 2);
+        grid.add(durationField, 1, 2);
+        grid.add(new Label("Calories Burned:"), 0, 3);
+        grid.add(caloriesField, 1, 3);
+        grid.add(new Label("Date:"), 0, 4);
+        grid.add(datePicker, 1, 4);
+        grid.add(new Label("Notes:"), 0, 5);
+        grid.add(notesArea, 1, 5);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addButtonType) {
+                try {
+                    if (userIdField.getText().isEmpty() || durationField.getText().isEmpty() ||
+                            caloriesField.getText().isEmpty() || datePicker.getValue() == null) {
+                        outputArea.setText("Please fill in all required fields");
+                        return null;
+                    }
+
+                    // Parse and validate numeric values
+                    int userId = Integer.parseInt(userIdField.getText());
+                    int duration = Integer.parseInt(durationField.getText());
+                    int calories = Integer.parseInt(caloriesField.getText());
+
+                    if (userId <= 0 || duration <= 0 || calories < 0) {
+                        outputArea.setText("User ID and Duration must be > 0, Calories must be >= 0");
+                        return null;
+                    }
+
+                    if (typeField.getText().trim().isEmpty()) {
+                        outputArea.setText("Workout type cannot be empty");
+                        return null;
+                    }
+
+                    return new WorkoutDTO(
+                            0,
+                            userId,
+                            typeField.getText().trim(),
+                            duration,
+                            calories,
+                            Date.valueOf(datePicker.getValue()),
+                            notesArea.getText()
+                    );
+                }
+                catch (NumberFormatException e) {
+                    outputArea.setText("Please enter valid numbers for ID, Duration and Calories");
+                    return null;
+                }
+                catch (Exception e) {
+                    outputArea.setText("Error preparing workout: " + e.getMessage());
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        Optional<WorkoutDTO> result = dialog.showAndWait();
+        result.ifPresent(workout -> {
+            try {
+                // Create request JSON
+                JSONObject request = new JSONObject();
+                request.put("action", "insertWorkout");
+                request.put("userID", workout.getUserID());
+                request.put("workoutType", workout.getWorkoutType());
+                request.put("duration", workout.getDuration());
+                request.put("caloriesBurned", workout.getCaloriesBurned());
+                request.put("workoutDate", workout.getWorkoutDate().toString());
+                request.put("notes", workout.getNotes());
+
+                // Debug output
+                System.out.println("Sending workout data: " + request.toString());
+
+                // Send request and get response
+                String response = connection.sendMessage(request.toString());
+                System.out.println("Server response: " + response); // Debug response
+
+                JSONObject responseJson = new JSONObject(response);
+
+                if (responseJson.has("success")) {
+                    outputArea.setText("Workout added successfully!");
+                    listAllWorkouts();
+                }
+                else {
+                    String errorMessage = "Error adding workout: ";
+
+                    if (responseJson.has("error")) {
+                        errorMessage += responseJson.getString("error");
+                    }
+                    else if (responseJson.has("message")) {
+                        errorMessage += responseJson.getString("message");
+                    }
+                    else {
+                        errorMessage += "Unknown server error. Response: " + response;
+
+                        if (response.contains("SQL")) {
+                            errorMessage += "\nPossible database error detected";
+                        }
+                        else if (response.contains("null")) {
+                            errorMessage += "\nNull value detected in response";
+                        }
+                    }
+
+                    outputArea.setText(errorMessage);
+                }
+            }
+            catch (Exception e) {
+                String errorDetails = "Failed to add workout:\n" +
+                        "Error: " + e.getMessage() + "\n" +
+                        "Cause: " + (e.getCause() != null ? e.getCause().getMessage() : "none") + "\n";
+
+                StackTraceElement[] stackTrace = e.getStackTrace();
+                for (int i = 0; i < Math.min(5, stackTrace.length); i++) {
+                    errorDetails += stackTrace[i].toString() + "\n";
+                }
+
+                outputArea.setText("Failed to add workout. See console for details.");
+                System.err.println(errorDetails);
+            }
+        });
+    }
     private void filterByDuration() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Filter Workouts");
@@ -253,6 +413,7 @@ public class MainGUI extends Application {
     }
 
     private void updateWorkout() {
+
         TextInputDialog idDialog = new TextInputDialog();
         idDialog.setTitle("Update Workout");
         idDialog.setHeaderText("Enter Workout ID to update:");
@@ -262,13 +423,21 @@ public class MainGUI extends Application {
         if(!idResult.isPresent()) {
             return;
         }
-        try{
+
+        try {
             int workoutId = Integer.parseInt(idResult.get());
+
+            // Debug: Print the workout ID we're trying to update
+            System.out.println("Attempting to update workout ID: " + workoutId);
+
+            // Get current workout data
             JSONObject request = new JSONObject();
             request.put("action", "getWorkoutById");
             request.put("id", workoutId);
 
             String response = connection.sendMessage(request.toString());
+            System.out.println("Current workout data response: " + response); // Debug response
+
             JSONObject currentWorkout = new JSONObject(response);
 
             if (currentWorkout.has("error")) {
@@ -276,6 +445,7 @@ public class MainGUI extends Application {
                 return;
             }
 
+            // Create update dialog
             Dialog<WorkoutDTO> updateDialog = new Dialog<>();
             updateDialog.setTitle("Update Workout");
             updateDialog.setHeaderText("Edit Workout Details");
@@ -288,6 +458,7 @@ public class MainGUI extends Application {
             grid.setVgap(10);
             grid.setPadding(new Insets(20, 150, 10, 10));
 
+            // Create input fields with current values
             TextField userIdField = new TextField(String.valueOf(currentWorkout.getInt("userID")));
             TextField typeField = new TextField(currentWorkout.getString("workoutType"));
             TextField durationField = new TextField(String.valueOf(currentWorkout.getInt("duration")));
@@ -295,6 +466,20 @@ public class MainGUI extends Application {
             DatePicker datePicker = new DatePicker(LocalDate.parse(currentWorkout.getString("workoutDate")));
             TextArea notesArea = new TextArea(currentWorkout.getString("notes"));
 
+            // Add validation listeners
+            durationField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.matches("\\d*")) {
+                    durationField.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            });
+
+            caloriesField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.matches("\\d*")) {
+                    caloriesField.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            });
+
+            // Add components to grid
             grid.add(new Label("User ID:"), 0, 0);
             grid.add(userIdField, 1, 0);
             grid.add(new Label("Workout Type:"), 0, 1);
@@ -314,16 +499,33 @@ public class MainGUI extends Application {
             updateDialog.setResultConverter(dialogButton -> {
                 if (dialogButton == updateButtonType) {
                     try {
-                        if (datePicker.getValue() == null) {
-                            outputArea.setText("Please select a date");
+                        // Validate inputs
+                        if (userIdField.getText().isEmpty() || durationField.getText().isEmpty() ||
+                                caloriesField.getText().isEmpty() || datePicker.getValue() == null) {
+                            outputArea.setText("Please fill in all required fields");
                             return null;
                         }
+
+                        int userId = Integer.parseInt(userIdField.getText());
+                        int duration = Integer.parseInt(durationField.getText());
+                        int calories = Integer.parseInt(caloriesField.getText());
+
+                        if (userId <= 0 || duration <= 0 || calories < 0) {
+                            outputArea.setText("User ID and Duration must be > 0, Calories must be >= 0");
+                            return null;
+                        }
+
+                        if (typeField.getText().trim().isEmpty()) {
+                            outputArea.setText("Workout type cannot be empty");
+                            return null;
+                        }
+
                         return new WorkoutDTO(
                                 workoutId,
-                                Integer.parseInt(userIdField.getText()),
-                                typeField.getText(),
-                                Integer.parseInt(durationField.getText()),
-                                Integer.parseInt(caloriesField.getText()),
+                                userId,
+                                typeField.getText().trim(),
+                                duration,
+                                calories,
                                 Date.valueOf(datePicker.getValue()),
                                 notesArea.getText()
                         );
@@ -333,7 +535,7 @@ public class MainGUI extends Application {
                         return null;
                     }
                     catch (Exception e) {
-                        outputArea.setText("Error: " + e.getMessage());
+                        outputArea.setText("Error preparing update: " + e.getMessage());
                         return null;
                     }
                 }
@@ -343,6 +545,7 @@ public class MainGUI extends Application {
             Optional<WorkoutDTO> updateResult = updateDialog.showAndWait();
             updateResult.ifPresent(updatedWorkout -> {
                 try {
+                    // Create update request
                     JSONObject updateRequest = new JSONObject();
                     updateRequest.put("action", "updateWorkout");
                     updateRequest.put("workoutID", updatedWorkout.getWorkoutID());
@@ -353,20 +556,68 @@ public class MainGUI extends Application {
                     updateRequest.put("workoutDate", updatedWorkout.getWorkoutDate().toString());
                     updateRequest.put("notes", updatedWorkout.getNotes());
 
+                    // Debug: Print the update request
+                    System.out.println("Sending update request: " + updateRequest.toString());
+
+                    // Send update request
                     String updateResponse = connection.sendMessage(updateRequest.toString());
+                    System.out.println("Update response: " + updateResponse); // Debug response
+
                     JSONObject responseJson = new JSONObject(updateResponse);
 
                     if (responseJson.has("success")) {
-                        outputArea.setText("Workout updated successfully!");
+                        // Verify the update by fetching the workout again
+                        JSONObject verifyRequest = new JSONObject();
+                        verifyRequest.put("action", "getWorkoutById");
+                        verifyRequest.put("id", workoutId);
+
+                        String verifyResponse = connection.sendMessage(verifyRequest.toString());
+                        JSONObject updatedWorkoutData = new JSONObject(verifyResponse);
+
+                        System.out.println("Verification data: " + updatedWorkoutData.toString());
+
+                        outputArea.setText("Workout updated successfully!\n" +
+                                "Updated details:\n" +
+                                "Type: " + updatedWorkoutData.getString("workoutType") + "\n" +
+                                "Duration: " + updatedWorkoutData.getInt("duration") + " mins\n" +
+                                "Calories: " + updatedWorkoutData.getInt("caloriesBurned"));
+
+                        listAllWorkouts(); // Refresh the workout list
                     }
                     else {
-                        outputArea.setText("Update failed: " +
-                                (responseJson.has("error") ? responseJson.getString("error") : "Unknown error"));
+                        // Enhanced error handling
+                        String errorMsg = "Update failed: ";
+                        if (responseJson.has("error")) {
+                            errorMsg += responseJson.getString("error");
+                        } else if (responseJson.has("message")) {
+                            errorMsg += responseJson.getString("message");
+                        } else {
+                            errorMsg += "Unknown error. Server response: " + updateResponse;
+
+                            // Check for common issues
+                            if (updateResponse.contains("SQL")) {
+                                errorMsg += "\nPossible database error";
+                            } else if (updateResponse.contains("null")) {
+                                errorMsg += "\nNull value detected in response";
+                            }
+                        }
+                        outputArea.setText(errorMsg);
                     }
                 }
                 catch (Exception e) {
-                    outputArea.setText("Error updating workout: " + e.getMessage());
-                    e.printStackTrace();
+                    // Detailed error reporting
+                    String errorDetails = "Failed to update workout:\n" +
+                            "Error: " + e.getMessage() + "\n" +
+                            "Cause: " + (e.getCause() != null ? e.getCause().getMessage() : "none") + "\n";
+
+                    // Add first few lines of stack trace
+                    StackTraceElement[] stackTrace = e.getStackTrace();
+                    for (int i = 0; i < Math.min(5, stackTrace.length); i++) {
+                        errorDetails += stackTrace[i].toString() + "\n";
+                    }
+
+                    outputArea.setText("Failed to update workout. See console for details.");
+                    System.err.println(errorDetails);
                 }
             });
 

@@ -7,6 +7,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.client.socket.SocketClient;
@@ -33,43 +34,70 @@ public class MainGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/workout-view.fxml"));
-        try {
-            VBox root = loader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         primaryStage.setTitle("Workout Tracker");
 
-        VBox root = new VBox(10);
-        root.setStyle("-fx-padding: 15");
+        VBox root = new VBox(15);
+        root.setPadding(new Insets(20));
+        root.setStyle("-fx-background-color: #f9f9f9;");
+
+        outputArea.setWrapText(true);
+        outputArea.setEditable(false);
+        outputArea.setPrefHeight(200);
+        outputArea.setStyle(
+                "-fx-font-family: 'Consolas';" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-control-inner-background: #fefefe;" +
+                        "-fx-text-fill: #333333;" +
+                        "-fx-border-color: #cccccc;" +
+                        "-fx-border-radius: 6;" +
+                        "-fx-background-radius: 6;" +
+                        "-fx-padding: 10;"
+        );
+
+        Label headerLabel = new Label("Workout Tracker Dashboard");
+        headerLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Button listAllButton = new Button("List All Workouts");
         Button findByIdButton = new Button("Find Workout by ID");
-        Button addWorkoutButton = new Button("Add New Workout"); // (Feature stub)
+        Button addWorkoutButton = new Button("Add New Workout");
         Button updateWorkoutButton = new Button("Update Workout");
         Button deleteWorkoutButton = new Button("Delete Workout");
         Button filterByDurationButton = new Button("Filter by Duration");
 
-        addWorkoutButton.setOnAction(e -> addNewWorkout());
+        // Common styling for all buttons
+        Button[] buttons = {
+                listAllButton, findByIdButton, addWorkoutButton,
+                updateWorkoutButton, deleteWorkoutButton, filterByDurationButton
+        };
+
+        for (Button btn : buttons) {
+            btn.setStyle("-fx-font-size: 13px; -fx-background-color: #2d89ef; -fx-text-fill: white; -fx-background-radius: 6px;");
+        }
+
+        // Place buttons inline using HBox
+        HBox buttonBox = new HBox(10);
+        buttonBox.getChildren().addAll(buttons);
+        buttonBox.setPadding(new Insets(10, 0, 10, 0));
+
+        // Output area styling
+        outputArea.setWrapText(true);
+        outputArea.setEditable(false);
+        outputArea.setStyle("-fx-font-family: 'Consolas'; -fx-font-size: 13px; -fx-border-color: #ccc; -fx-border-radius: 6px;");
+        outputArea.setPrefHeight(200);
+
+        // Add components to root layout
+        root.getChildren().addAll(headerLabel, buttonBox, new Label("Output:"), outputArea);
+
+        // Event bindings
         listAllButton.setOnAction(e -> listAllWorkouts());
         findByIdButton.setOnAction(e -> findWorkoutById());
+        addWorkoutButton.setOnAction(e -> addNewWorkout());
         updateWorkoutButton.setOnAction(e -> updateWorkout());
         deleteWorkoutButton.setOnAction(e -> deleteWorkout());
         filterByDurationButton.setOnAction(e -> filterByDuration());
 
-        root.getChildren().addAll(
-                listAllButton,
-                findByIdButton,
-                addWorkoutButton,
-                updateWorkoutButton,
-                deleteWorkoutButton,
-                filterByDurationButton,
-                outputArea
-        );
-
-        Scene scene = new Scene(root, 500, 400);
+        // Set and show scene
+        Scene scene = new Scene(root, 800, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

@@ -6,9 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.client.socket.SocketClient;
@@ -29,7 +27,6 @@ public class MainGUI extends Application {
     private static SocketClient connection;
     @FXML
     private TextArea outputArea = new TextArea();
-
     public static void setConnection(SocketClient conn) {
         connection = conn;
     }
@@ -45,15 +42,9 @@ public class MainGUI extends Application {
 
         primaryStage.setTitle("Workout Tracker");
 
-        // Button layout (top section)
-        VBox buttonGroup = new VBox(10);
-        buttonGroup.setPadding(new Insets(10));
-        buttonGroup.setStyle("-fx-background-color: #f0f0f0; -fx-border-radius: 10; -fx-background-radius: 10;");
+        VBox root = new VBox(10);
+        root.setStyle("-fx-padding: 15");
 
-        Label actionsLabel = new Label("Choose an Action:");
-        actionsLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
-
-        Button refreshButton = new Button("Refresh");
         Button listAllButton = new Button("List All Workouts");
         Button findByIdButton = new Button("Find Workout by ID");
         Button addWorkoutButton = new Button("Add New Workout"); // (Feature stub)
@@ -62,12 +53,6 @@ public class MainGUI extends Application {
         Button filterByDurationButton = new Button("Filter by Duration");
 
         addWorkoutButton.setOnAction(e -> addNewWorkout());
-        listAllButton.setMaxWidth(Double.MAX_VALUE);
-        findByIdButton.setMaxWidth(Double.MAX_VALUE);
-        updateWorkoutButton.setMaxWidth(Double.MAX_VALUE);
-        deleteWorkoutButton.setMaxWidth(Double.MAX_VALUE);
-        filterByDurationButton.setMaxWidth(Double.MAX_VALUE);
-
         listAllButton.setOnAction(e -> listAllWorkouts());
         findByIdButton.setOnAction(e -> findWorkoutById());
         updateWorkoutButton.setOnAction(e -> updateWorkout());
@@ -75,35 +60,16 @@ public class MainGUI extends Application {
         filterByDurationButton.setOnAction(e -> filterByDuration());
 
         root.getChildren().addAll(
-        buttonGroup.getChildren().addAll(
-                actionsLabel,
                 listAllButton,
                 findByIdButton,
                 addWorkoutButton,
                 updateWorkoutButton,
                 deleteWorkoutButton,
-                filterByDurationButton
+                filterByDurationButton,
+                outputArea
         );
 
-        // Output area (bottom section)
-        outputArea.setEditable(false);
-        outputArea.setWrapText(true);
-        outputArea.setStyle("-fx-control-inner-background: #fefefe; -fx-font-family: 'Consolas'; -fx-font-size: 12;");
-        outputArea.setPrefHeight(300);
-        VBox.setVgrow(outputArea, Priority.ALWAYS);
-
-        Label outputLabel = new Label("📄 Output:");
-        outputLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
-
-        VBox outputBox = new VBox(5, outputLabel, outputArea);
-        outputBox.setPadding(new Insets(10, 10, 10, 10));
-
-        // Final layout
-        BorderPane mainLayout = new BorderPane();
-        mainLayout.setLeft(buttonGroup);
-        mainLayout.setCenter(outputBox);
-
-        Scene scene = new Scene(mainLayout, 700, 450);
+        Scene scene = new Scene(root, 500, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

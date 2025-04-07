@@ -264,7 +264,7 @@ public class MainGUI extends Application {
     private void filterByDuration() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Filter Workouts");
-        dialog.setHeaderText("Enter duration (minutes) to filter by:");
+        dialog.setHeaderText("Enter duration (hours) to filter by:");
         dialog.setContentText("Duration:");
 
         Optional<String> result = dialog.showAndWait();
@@ -318,10 +318,10 @@ public class MainGUI extends Application {
 
 
             if (filteredWorkouts.isEmpty()) {
-                outputArea.setText("No workouts found with duration of " + duration + " minutes.");
+                outputArea.setText("No workouts found with duration of " + duration + " hours.");
             }
             else {
-                StringBuilder sb = new StringBuilder("Workouts with duration of " + duration + " minutes:\n");
+                StringBuilder sb = new StringBuilder("Workouts with duration of " + duration + " hours:\n");
                 for (WorkoutDTO workout : filteredWorkouts) {
                     sb.append(workout).append("\n");
                 }

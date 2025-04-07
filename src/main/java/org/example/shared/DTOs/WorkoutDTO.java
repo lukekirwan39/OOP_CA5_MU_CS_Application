@@ -79,14 +79,9 @@ public class WorkoutDTO {
 
     @Override
     public String toString() {
-        return "WorkoutDTO{" +
-                "workoutID=" + workoutID +
-                ", userID=" + userID +
-                ", workoutType='" + workoutType + '\'' +
-                ", duration=" + duration +
-                ", caloriesBurned=" + caloriesBurned +
-                ", workoutDate=" + workoutDate +
-                ", notes='" + notes + '\'' +
-                '}';
+        return String.format(
+                "Workout ID: %d | User ID: %d | Type: %s | Duration: %d hour(s) | Calories Burned: %d | Date: %s | Notes: %s%n",
+                workoutID, userID, workoutType, duration, caloriesBurned, workoutDate, notes
+        );
     }
 }

@@ -6,25 +6,35 @@
 
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.example.client.gui.MainGUI"
-      spacing="15" alignment="TOP_CENTER"
+      spacing="20" alignment="TOP_CENTER"
       stylesheets="@styles/styles.css">
 
-    <Label text="Workout Tracker" styleClass="title-label"/>
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
 
-    <HBox spacing="10" alignment="CENTER">
+    <Label text="Workout Tracker Dashboard" styleClass="title-label"/>
+
+    <HBox spacing="15" alignment="CENTER">
         <Button fx:id="listAllButton" text="List All Workouts" onAction="#listAllWorkouts"/>
         <Button fx:id="findByIdButton" text="Find Workout by ID" onAction="#findWorkoutById"/>
-        <Button fx:id="addWorkoutButton" text="Add New Workout" disable="true"/>
+        <Button fx:id="addWorkoutButton" text="Add New Workout" onAction="#addNewWorkout"/>
     </HBox>
 
-    <Separator/>
+    <HBox spacing="15" alignment="CENTER">
+        <Button fx:id="updateWorkoutButton" text="Update Workout" onAction="#updateWorkout"/>
+        <Button fx:id="deleteWorkoutButton" text="Delete Workout" onAction="#deleteWorkout"/>
+        <Button fx:id="filterByDurationButton" text="Filter by Duration" onAction="#filterByDuration"/>
+    </HBox>
+
+    <Separator prefWidth="600"/>
 
     <Label text="Output:" styleClass="output-label"/>
 
     <TextArea fx:id="outputArea"
-              prefWidth="500"
+              prefWidth="600"
               prefHeight="300"
               wrapText="true"
               editable="false"
-              styleClass="output-area"/>
+              styleClass="text-area"/>
 </VBox>

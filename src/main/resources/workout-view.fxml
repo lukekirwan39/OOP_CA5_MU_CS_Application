@@ -27,6 +27,10 @@
         <Button fx:id="filterByDurationButton" text="Filter by Duration" onAction="#filterByDuration"/>
     </HBox>
 
+    <HBox spacing="15" alignment="CENTER">
+        <Button fx:id="downloadImageButton" text="Download Image" onAction="#downloadImage"/>
+    </HBox>
+
     <Separator prefWidth="600"/>
 
     <Label text="Output:" styleClass="output-label"/>

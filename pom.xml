@@ -58,6 +58,11 @@
             <version>21</version>
             <classifier>win</classifier> <!-- Adjust for your OS (win/linux/mac) -->
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
     </dependencies>
 
     <build>

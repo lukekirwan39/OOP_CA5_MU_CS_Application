@@ -660,6 +660,36 @@ public class MainGUI extends Application {
         });
     }
 
+    @FXML
+    private void downloadImage() {
+        try {
+            List<String> imageList = connection.requestImageList();
+            if (imageList.isEmpty()) {
+                outputArea.setText("No images found on server.");
+                return;
+            }
+
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(imageList.get(0), imageList);
+            dialog.setTitle("Image Download");
+            dialog.setHeaderText("Select an image to download:");
+            dialog.setContentText("Available Images:");
+
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(selected -> {
+                boolean success = connection.downloadImage(selected);
+                if (success) {
+                    outputArea.setText("Image '" + selected + "' downloaded successfully.");
+                } else {
+                    outputArea.setText("Failed to download image: " + selected);
+                }
+            });
+        } catch (Exception e) {
+            outputArea.setText("Error downloading image: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
     public static void main(String[] args) {
         setConnection(new SocketClient("localhost", 12345)); // Init connection before launch
         launch(args);

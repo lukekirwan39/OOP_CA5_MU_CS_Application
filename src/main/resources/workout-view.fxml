@@ -7,7 +7,8 @@
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.example.client.gui.MainGUI"
       spacing="20" alignment="TOP_CENTER"
-      stylesheets="@styles/styles.css">
+      stylesheets="@styles/styles.css"
+      styleClass="main-container">
 
     <padding>
         <Insets top="30" right="30" bottom="30" left="30"/>
@@ -16,19 +17,20 @@
     <Label text="Workout Tracker Dashboard" styleClass="title-label"/>
 
     <HBox spacing="15" alignment="CENTER">
-        <Button fx:id="listAllButton" text="List All Workouts" onAction="#listAllWorkouts"/>
-        <Button fx:id="findByIdButton" text="Find Workout by ID" onAction="#findWorkoutById"/>
-        <Button fx:id="addWorkoutButton" text="Add New Workout" onAction="#addNewWorkout"/>
+        <Button fx:id="refreshButton" text="Refresh" onAction="#refresh" styleClass="dashboard-button"/>
+        <Button fx:id="listAllButton" text="List All Workouts" onAction="#listAllWorkouts" styleClass="dashboard-button"/>
+        <Button fx:id="findByIdButton" text="Find Workout by ID" onAction="#findWorkoutById" styleClass="dashboard-button"/>
+        <Button fx:id="addWorkoutButton" text="Add New Workout" onAction="#addNewWorkout" styleClass="dashboard-button"/>
     </HBox>
 
     <HBox spacing="15" alignment="CENTER">
-        <Button fx:id="updateWorkoutButton" text="Update Workout" onAction="#updateWorkout"/>
-        <Button fx:id="deleteWorkoutButton" text="Delete Workout" onAction="#deleteWorkout"/>
-        <Button fx:id="filterByDurationButton" text="Filter by Duration" onAction="#filterByDuration"/>
+        <Button fx:id="updateWorkoutButton" text="Update Workout" onAction="#updateWorkout" styleClass="dashboard-button"/>
+        <Button fx:id="deleteWorkoutButton" text="Delete Workout" onAction="#deleteWorkout" styleClass="dashboard-button"/>
+        <Button fx:id="filterByDurationButton" text="Filter by Duration" onAction="#filterByDuration" styleClass="dashboard-button"/>
     </HBox>
 
     <HBox spacing="15" alignment="CENTER">
-        <Button fx:id="downloadImageButton" text="Download Image" onAction="#downloadImage"/>
+        <Button fx:id="downloadImageButton" text="Download Image" onAction="#downloadImage" styleClass="dashboard-button"/>
     </HBox>
 
     <Separator prefWidth="600"/>
@@ -40,5 +42,5 @@
               prefHeight="300"
               wrapText="true"
               editable="false"
-              styleClass="text-area"/>
+              styleClass="output-area"/>
 </VBox>

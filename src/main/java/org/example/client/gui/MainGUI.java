@@ -1,13 +1,14 @@
 package org.example.client.gui;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.client.socket.SocketClient;
@@ -31,6 +32,9 @@ public class MainGUI extends Application {
     public static void setConnection(SocketClient conn) {
         connection = conn;
     }
+
+    @FXML
+    private Button refreshButton;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -693,5 +697,43 @@ public class MainGUI extends Application {
     public static void main(String[] args) {
         setConnection(new SocketClient("localhost", 12345)); // Init connection before launch
         launch(args);
+    }
+
+    @FXML
+    private void refresh() {
+        outputArea.setText("Refreshing workout list...");
+        refreshButton.setDisable(true);
+
+        Task<Void> refreshTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                listAllWorkouts();
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                outputArea.setText("Workout list refreshed.");
+                refreshButton.setDisable(false);
+            }
+
+            @Override
+            protected void failed() {
+                Throwable ex = getException();
+                String errorDetails = "Failed to refresh workout list:\n" +
+                        "Error: " + ex.getMessage() + "\n" +
+                        "Cause: " + (ex.getCause() != null ? ex.getCause().getMessage() : "none") + "\n";
+
+                for (int i = 0; i < Math.min(5, ex.getStackTrace().length); i++) {
+                    errorDetails += ex.getStackTrace()[i].toString() + "\n";
+                }
+
+                outputArea.setText("Failed to refresh workouts. See console for details.");
+                System.err.println(errorDetails);
+                refreshButton.setDisable(false);
+            }
+        };
+
+        new Thread(refreshTask).start();
     }
 }

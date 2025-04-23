@@ -2,8 +2,8 @@ package org.example.client.socket;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -31,53 +31,50 @@ public class SocketClient {
     }
 
     public List<String> requestImageList() throws IOException {
-        sendRaw("GET_LIST");
-        return readJsonList();
-    }
-
-    private void sendRaw(String message) throws IOException {
         try (Socket socket = new Socket(host, port);
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-            out.println(message);
-        }
-    }
+             PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {
 
-    private String readLine() throws IOException {
-        try (Socket socket = new Socket(host, port);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-            return in.readLine();
-        }
-    }
+            out.println("GET_LIST");
 
-    private List<String> readJsonList() throws IOException {
-        String json = readLine();
-        return new Gson().fromJson(json, new TypeToken<List<String>>(){}.getType());
+            String json = in.readLine();
+            return new Gson().fromJson(json, new TypeToken<List<String>>(){}.getType());
+        }
     }
 
     public boolean downloadImage(String imageName) {
         try (Socket imageSocket = new Socket(host, port);
              DataInputStream in = new DataInputStream(imageSocket.getInputStream());
-             DataOutputStream out = new DataOutputStream(imageSocket.getOutputStream())) {
+             OutputStream out = imageSocket.getOutputStream()) {
 
-            out.writeBytes("GET_IMAGE:" + imageName + "\n");
+            // Send the request
+            out.write(("GET_IMAGE:" + imageName + "\n").getBytes(StandardCharsets.UTF_8));
+            out.flush();
 
-            int fileSize = in.readInt();
-            if (fileSize <= 0) return false;
+            long fileSize = in.readLong();
+            if (fileSize <= 0) {
+                System.out.println("Image not found or invalid size.");
+                return false;
+            }
 
             File outFile = new File("client_images/" + imageName);
             outFile.getParentFile().mkdirs();
 
             try (BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(outFile))) {
                 byte[] buffer = new byte[4096];
-                int bytesRead, totalRead = 0;
+                long totalRead = 0;
+                int bytesRead;
 
-                while (totalRead < fileSize && (bytesRead = in.read(buffer, 0, Math.min(buffer.length, fileSize - totalRead))) != -1) {
+                while (totalRead < fileSize &&
+                        (bytesRead = in.read(buffer, 0, (int) Math.min(buffer.length, fileSize - totalRead))) != -1) {
                     fileOut.write(buffer, 0, bytesRead);
                     totalRead += bytesRead;
                 }
             }
 
+            System.out.println("Downloaded: " + imageName + " (" + fileSize + " bytes)");
             return true;
+
         } catch (IOException e) {
             e.printStackTrace();
             return false;

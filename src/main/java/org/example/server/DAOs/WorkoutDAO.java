@@ -157,7 +157,7 @@ public class WorkoutDAO implements WorkoutDAOInterface {
 
             checkStmt.setInt(1, workout.getWorkoutID());
             try(ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next() || rs.getInt(1) == 0) {
+                if (rs.next() && rs.getInt(1) == 0) {
                     System.out.println("Workout does not exist, please try again.");
                     return;
                 }
